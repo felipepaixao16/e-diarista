@@ -22,5 +22,4 @@ public class AutenticacaoService implements UserDetailsService {
             .orElseThrow(() -> new UsernameNotFoundException(mensagem));
     }
     
-    
 }

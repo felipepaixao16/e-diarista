@@ -1,5 +1,7 @@
 package com.project.ediarista.web.controllers;
 
+import java.security.Principal;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -12,6 +14,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.project.ediarista.core.exceptions.ValidacaoException;
+import com.project.ediarista.web.dtos.AlterarSenhaForm;
 import com.project.ediarista.web.dtos.FlashMessage;
 import com.project.ediarista.web.dtos.UsuarioCadastroForm;
 import com.project.ediarista.web.dtos.UsuarioEdicaoForm;
@@ -94,5 +97,33 @@ public class UsuarioController {
         attrs.addFlashAttribute("alert", new FlashMessage("alert-success", 
         "Usuário excluído com sucesso!"));
         return "redirect:/admin/usuarios";
+    }
+
+    @GetMapping("alterar-senha")
+    public ModelAndView alterarSenha() {
+        var modelAndView = new ModelAndView("admin/usuario/alterar-senha");
+
+        modelAndView.addObject("alterarSenhaForm", new AlterarSenhaForm());
+
+        return modelAndView;
+    }
+
+    @PostMapping("/alterar-senha")
+    public String alterarSenha(@Valid @ModelAttribute("alterarSenhaForm") AlterarSenhaForm alterarSenhaForm,
+    BindingResult result,
+    RedirectAttributes atts,
+    Principal principal) {
+        if (result.hasErrors()) {
+            return "admin/usuario/alterar-senha";
+        }
+        try {
+            service.alterarSenha(alterarSenhaForm, principal.getName());
+            atts.addFlashAttribute("alert", new FlashMessage("alert-sucess", "Senha alterada com sucesso!"));
+        } catch (ValidacaoException e) {
+            result.addError(e.getFieldError());
+            return "admin/usuario/alterar-senha";
+        }
+
+        return "redirect:/admin/usuario/alterar-senha";
     }
 }
